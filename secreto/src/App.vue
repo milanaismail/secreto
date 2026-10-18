@@ -15,11 +15,11 @@ onMounted(() => {
     if (headerContent.value) {
       headerAnimation = gsap.to(headerContent.value, {
         opacity: 1,
-        duration: 1.2,
+        duration: 1.8,
         ease: "sine.out",
       });
     }
-  }, 3500);
+  }, 4200);
 });
 
 onUnmounted(() => {

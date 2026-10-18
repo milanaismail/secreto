@@ -38,7 +38,7 @@
     --color-border-hover: var(--vt-c-divider-dark-1);
 
     --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
+    --color-text: var(--vt-c-text-light-1);
 }
 
 
@@ -79,6 +79,14 @@ body {
 
 h1{
   font-size: 4rem;
+  color: var(--color-heading);
+  font-family:
+   'Didot', Sans-serif;
+   line-height: 1.2;
+}
+
+h2{
+  font-size: 2rem;
   color: var(--color-heading);
   font-family:
    'Didot', Sans-serif;
