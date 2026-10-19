@@ -7,6 +7,7 @@ import door from "../assets/door.jpeg";
 import secret1 from "../assets/secret-1.jpeg";
 import secret2 from "../assets/secret-2.jpeg";
 import secret3 from "../assets/secret-3.jpeg";
+import nameBackground from "../assets/zo-onstond-de-naam.jpeg";
 
 const background = ref<HTMLElement | null>(null);
 const heroSection = ref<HTMLElement | null>(null);
@@ -22,6 +23,8 @@ const doorImage = ref<HTMLImageElement | null>(null);
 const secretSection = ref<HTMLElement | null>(null);
 const secretCards = ref<HTMLElement[]>([]);
 const secretText = ref<HTMLElement[]>([]);
+const nameSection = ref<HTMLElement | null>(null);
+const nameItems = ref<HTMLElement[]>([]);
 const secretImages = [secret1, secret2, secret3];
 
 let zoomTimer: ReturnType<typeof setTimeout> | undefined;
@@ -32,6 +35,7 @@ let heroFrame: number | undefined;
 let doorFrame: number | undefined;
 let scrollHeadingFrame: number | undefined;
 let secretFrame: number | undefined;
+let nameFrame: number | undefined;
 let secretDelayTimer: ReturnType<typeof setTimeout> | undefined;
 let secretDelayUntil: number | undefined;
 let videoCleanup: (() => void) | undefined;
@@ -39,6 +43,7 @@ let heroCleanup: (() => void) | undefined;
 let doorCleanup: (() => void) | undefined;
 let scrollHeadingCleanup: (() => void) | undefined;
 let secretCleanup: (() => void) | undefined;
+let nameCleanup: (() => void) | undefined;
 let videoReady = false;
 
 onMounted(() => {
@@ -168,10 +173,9 @@ onMounted(() => {
     const section = scrollHeadingSection.value;
     if (!section) return;
 
-    const { top } = section.getBoundingClientRect();
-    const start = window.innerHeight * 0.5;
-    const end = -window.innerHeight * 0.5;
-    const progress = Math.min(1, Math.max(0, (start - top) / (start - end)));
+    const { top, height } = section.getBoundingClientRect();
+    const scrollRange = Math.max(1, height - window.innerHeight);
+    const progress = Math.min(1, Math.max(0, -top / scrollRange));
 
     scrollHeading.value?.style.setProperty(
       "--fill-progress",
@@ -247,6 +251,42 @@ onMounted(() => {
     }
   };
 
+  const updateNameItems = () => {
+    nameFrame = undefined;
+
+    const section = nameSection.value;
+    if (!section) return;
+
+    const { top, height } = section.getBoundingClientRect();
+    const scrollRange = Math.max(1, height - window.innerHeight);
+    const progress = Math.min(1, Math.max(0, -top / scrollRange));
+    const animationProgress = progress * nameItems.value.length;
+
+    nameItems.value.forEach((item, index) => {
+      const itemProgress = Math.min(
+        1,
+        Math.max(0, animationProgress - index),
+      );
+      const easedProgress = itemProgress * itemProgress * (3 - 2 * itemProgress);
+      const nextProgress = Math.min(
+        1,
+        Math.max(0, animationProgress - index - 1),
+      );
+      const easedNextProgress =
+        nextProgress * nextProgress * (3 - 2 * nextProgress);
+      const outgoingOpacity = 1 - Math.min(1, easedNextProgress * 1.6);
+      item.style.setProperty("--fill-progress", `${easedProgress * 100}%`);
+      const revealOpacity = index === 0 ? 1 : easedProgress;
+      item.style.opacity = String(revealOpacity * outgoingOpacity);
+    });
+  };
+
+  const requestNameUpdate = () => {
+    if (nameFrame === undefined) {
+      nameFrame = requestAnimationFrame(updateNameItems);
+    }
+  };
+
   window.addEventListener("scroll", requestHeroUpdate, { passive: true });
   window.addEventListener("resize", requestHeroUpdate);
   requestHeroUpdate();
@@ -289,6 +329,16 @@ onMounted(() => {
     if (secretFrame !== undefined) cancelAnimationFrame(secretFrame);
   };
 
+  window.addEventListener("scroll", requestNameUpdate, { passive: true });
+  window.addEventListener("resize", requestNameUpdate);
+  requestNameUpdate();
+
+  nameCleanup = () => {
+    window.removeEventListener("scroll", requestNameUpdate);
+    window.removeEventListener("resize", requestNameUpdate);
+    if (nameFrame !== undefined) cancelAnimationFrame(nameFrame);
+  };
+
   if (scrollVideo.value) {
     const video = scrollVideo.value;
     video.pause();
@@ -323,6 +373,7 @@ onUnmounted(() => {
   doorCleanup?.();
   scrollHeadingCleanup?.();
   secretCleanup?.();
+  nameCleanup?.();
   videoCleanup?.();
 });
 </script>
@@ -437,6 +488,47 @@ Niet alles is wat het lijkt.<br>  Sommige ervaringen moet je zelf on
     </div>
   </div>
 </div>
+    <div
+      ref="nameSection"
+      class="relative min-h-[300vh] w-full bg-cover bg-center bg-fixed"
+      :style="{
+        backgroundImage: `linear-gradient(rgba(18, 9, 2, 0.52), rgba(18, 9, 2, 0.52)), url(${nameBackground})`,
+      }"
+    >
+      <div class="sticky top-0 h-screen w-full">
+        <div
+          class="absolute inset-0 z-10 flex h-screen w-full items-center justify-center px-40 py-30"
+        >
+          <h2
+            :ref="(element) => { if (element) nameItems[0] = element as HTMLElement }"
+            class="name-scroll-item scroll-fill-heading"
+          >
+            zo ontstond de naam
+          </h2>
+        </div>
+        <div
+          class="absolute inset-0 z-20 flex h-screen w-full items-center justify-center px-40 py-30"
+        >
+          <img
+            :ref="(element) => { if (element) nameItems[1] = element as HTMLElement }"
+            src="../assets/secreto-logo-full.png"
+            class="name-scroll-item h-auto w-80"
+            alt="Logo"
+          />
+        </div>
+        <div
+          class="absolute inset-0 z-30 flex h-screen w-full items-center justify-center px-40 py-30"
+        >
+          <h2
+            :ref="(element) => { if (element) nameItems[2] = element as HTMLElement }"
+            class="name-scroll-item scroll-fill-heading"
+          >
+            omdat het mooiste soms verborgen zit.
+          </h2>
+        </div>
+      </div>
+    </div>
+
   <div ref="videoSection" class="relative h-screen w-full">
       <video
         ref="scrollVideo"
@@ -465,5 +557,11 @@ Niet alles is wat het lijkt.<br>  Sommige ervaringen moet je zelf on
   );
   background-clip: text;
   -webkit-background-clip: text;
+}
+
+.name-scroll-item {
+  --fill-progress: 0%;
+  opacity: 0;
+  will-change: opacity;
 }
 </style>
