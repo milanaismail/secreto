@@ -7,12 +7,15 @@ import door from "../assets/door.jpeg";
 import secret1 from "../assets/secret-1.jpeg";
 import secret2 from "../assets/secret-2.jpeg";
 import secret3 from "../assets/secret-3.jpeg";
+import safariHeroVideo from "../assets/secreto_exit_safari_smooth.mov";
+import webmHeroVideo from "../assets/secreto_exit.webm";
 import nameBackground from "../assets/zo-onstond-de-naam.jpeg";
 
 const background = ref<HTMLElement | null>(null);
 const heroSection = ref<HTMLElement | null>(null);
 const darkOverlay = ref<HTMLElement | null>(null);
 const videoOverlay = ref<HTMLElement | null>(null);
+const heroVideo = ref<HTMLVideoElement | null>(null);
 const heading = ref<HTMLElement | null>(null);
 const scrollHeadingSection = ref<HTMLElement | null>(null);
 const scrollHeading = ref<HTMLElement | null>(null);
@@ -30,6 +33,13 @@ const nameSection = ref<HTMLElement | null>(null);
 const nameItems = ref<HTMLElement[]>([]);
 const ctaSection = ref<HTMLElement | null>(null);
 const secretImages = [secret1, secret2, secret3];
+const isSafari =
+  typeof navigator !== "undefined" &&
+  /Safari/.test(navigator.userAgent) &&
+  !/Chrome|Chromium|CriOS|FxiOS|EdgiOS|OPiOS|Android/.test(
+    navigator.userAgent,
+  );
+const heroVideoSource = isSafari ? safariHeroVideo : webmHeroVideo;
 
 let zoomTimer: ReturnType<typeof setTimeout> | undefined;
 let zoomAnimation: ReturnType<typeof gsap.to> | undefined;
@@ -52,6 +62,7 @@ let scrollHeadingCleanup: (() => void) | undefined;
 let secretCleanup: (() => void) | undefined;
 let nameCleanup: (() => void) | undefined;
 let ctaCleanup: (() => void) | undefined;
+let heroVideoCleanup: (() => void) | undefined;
 let videoReady = false;
 let scrollLocked = false;
 let previousBodyOverflow = "";
@@ -77,6 +88,8 @@ const unlockPageScroll = () => {
 
 onMounted(() => {
   const shouldPlayHeroIntro = window.scrollY <= 1;
+  let heroIntroDelayElapsed = false;
+  let heroIntroStarted = false;
 
   if (heading.value) {
     gsap.set(heading.value, {
@@ -106,7 +119,16 @@ onMounted(() => {
 
   if (shouldPlayHeroIntro) {
     lockPageScroll();
-    zoomTimer = setTimeout(() => {
+    const startHeroIntro = () => {
+      if (heroIntroStarted || !heroIntroDelayElapsed) return;
+      if (
+        heroVideo.value &&
+        heroVideo.value.readyState < HTMLMediaElement.HAVE_FUTURE_DATA
+      ) {
+        return;
+      }
+
+      heroIntroStarted = true;
       const clipTargets = [background.value, videoOverlay.value].filter(
         (element): element is HTMLElement => element !== null,
       );
@@ -140,7 +162,20 @@ onMounted(() => {
           },
         );
       }
+    };
+
+    zoomTimer = setTimeout(() => {
+      heroIntroDelayElapsed = true;
+      startHeroIntro();
     }, 3500);
+
+    if (heroVideo.value) {
+      const startWhenReady = () => startHeroIntro();
+      heroVideo.value.addEventListener("canplay", startWhenReady);
+      heroVideoCleanup = () => {
+        heroVideo.value?.removeEventListener("canplay", startWhenReady);
+      };
+    }
   } else {
     finishHeroIntro();
   }
@@ -494,6 +529,7 @@ onUnmounted(() => {
   secretCleanup?.();
   nameCleanup?.();
   ctaCleanup?.();
+  heroVideoCleanup?.();
   videoCleanup?.();
 });
 </script>
@@ -525,12 +561,14 @@ onUnmounted(() => {
         class="absolute left-1/2 top-1/2 aspect-9/16 h-3/4 -translate-x-1/2 -translate-y-1/2"
       >
         <video
+          ref="heroVideo"
           class="absolute inset-0 z-10 h-full w-full object-cover"
           playsinline
           autoplay
           muted
+          preload="auto"
+          :src="heroVideoSource"
         >
-          <source src="../assets/secreto_exit.webm" type="video/webm" />
           Your browser does not support the video tag.
         </video>
       </div>
@@ -624,12 +662,15 @@ onUnmounted(() => {
   </div>
   <div
     ref="nameSection"
-    class="relative min-h-[300vh] w-full bg-cover bg-center bg-fixed"
-    :style="{
-      backgroundImage: `linear-gradient(rgba(18, 9, 2, 0.52), rgba(18, 9, 2, 0.52)), url(${nameBackground})`,
-    }"
+    class="relative min-h-[300vh] w-full"
   >
     <div class="sticky top-0 h-screen w-full">
+      <div
+        class="absolute inset-0 bg-cover bg-center"
+        :style="{
+          backgroundImage: `linear-gradient(rgba(18, 9, 2, 0.52), rgba(18, 9, 2, 0.52)), url(${nameBackground})`,
+        }"
+      ></div>
       <div
         class="absolute inset-0 z-10 flex h-screen w-full items-center justify-center px-40 py-30"
       >
