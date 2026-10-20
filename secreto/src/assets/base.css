@@ -1,8 +1,23 @@
 /* color palette from <https://github.com/vuejs/theme> */
 @font-face {
-  font-family: 'Didot';
-  src: url('@/assets/GFSDidot-Regular.ttf') format('ttf');
+  font-family: 'ZTNeueRalewe-Regular';
+  src: url('@/assets/fonts/ZTNeueRalewe-Regular.otf') format('opentype');
+  font-display: swap;
   font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'HelveticaNeueCyr';
+  src: url('@/assets/fonts/HelveticaNeueCyr-Light.otf') format('opentype');
+  font-display: swap;
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'HelveticaNeueCyr';
+  src: url('@/assets/fonts/HelveticaNeueCyr-Bold.otf') format('opentype');
+  font-display: swap;
+  font-weight: 700;
   font-style: normal;
 }
 
@@ -15,7 +30,7 @@
   --vt-c-black-soft: #222222;
   --vt-c-black-mute: #282828;
 
-  --vt-c-indigo: #2c3e50;
+  --vt-c-burgundy: #3C0008;
 
   --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
   --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
@@ -31,8 +46,8 @@
 /* semantic color variables for this project */
 :root {
  --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
+    --color-background-white: var(--vt-c-white);
+   --color-background-burgundy: var(--vt-c-burgundy);
 
     --color-border: var(--vt-c-divider-dark-2);
     --color-border-hover: var(--vt-c-divider-dark-1);
@@ -46,8 +61,6 @@
 *::before,
 *::after {
   box-sizing: border-box;
-  margin: 0;
-  font-weight: normal;
 }
 
 body {
@@ -59,40 +72,25 @@ body {
     background-color 0.5s;
   line-height: 1.6;
   font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
+    'HelveticaNeueCyr', sans-serif;
   font-size: 15px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-@layer base {
-  h1 {
-    font-size: 4rem;
-    color: var(--color-heading);
-    font-family:
-      'Didot', Sans-serif;
-    line-height: 1.2;
-  }
+h1 {
+  font-size: 4rem;
+  color: var(--color-heading);
+  font-family: 'ZTNeueRalewe-Regular', sans-serif;
+  line-height: 1.2;
+}
 
-  h2 {
-    font-size: 2rem;
-    color: var(--color-heading);
-    font-family:
-      'Didot', Sans-serif;
-    line-height: 1.2;
-  }
+h2 {
+  font-size: 2rem;
+  color: var(--color-heading);
+  font-family: 'ZTNeueRalewe-Regular', sans-serif;
+  line-height: 1.2;
 }
 
 .glass-button {
@@ -123,4 +121,14 @@ body {
     0 9px 25px rgba(0, 0, 0, 0.2);
 
   transition: all 0.3s ease;
+}
+
+.white-button{
+  padding: 8px 32px;
+  color: var(--color-background-white);
+  font-size: 15px;
+  cursor: pointer;
+  border:1px solid var(--color-background-white);
+   
+ 
 }
