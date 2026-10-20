@@ -583,10 +583,10 @@ onUnmounted(() => {
     ></div>
     <h1
       ref="heading"
-      class="absolute left-1/2 top-1/2 z-30 w-full -translate-x-1/2 -translate-y-1/2 p-6 text-center text-white opacity-0 whitespace-pre-wrap [filter:blur(12px)]"
+      class="absolute inset-x-0 top-1/2 z-30 w-full -translate-y-1/2 p-6 text-center text-white opacity-0 [filter:blur(12px)]"
     >
       Niet alles is wat het lijkt.<br />
-       Sommige ervaringen moet je zelf ontdekken.
+      Sommige ervaringen moet je zelf ontdekken.
     </h1>
   </div>
   <div class="grid w-full grid-cols-2 items-center gap-16 px-40 py-30">
